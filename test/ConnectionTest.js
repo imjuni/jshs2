@@ -38,6 +38,20 @@ describe('ThriftDriverTest', function() {
         });
       },
       function (callback) {
+        debug('get operation status test start,...');
+
+        cursor.getOperationStatus(function (err) {
+          callback(err);
+        });
+      },
+      function (callback) {
+        debug('get operation status test start,...');
+
+        cursor.getLog(function (err) {
+          callback(err);
+        });
+      },
+      function (callback) {
         cursor.getShcema(function (err, columns) {
           callback(err, columns);
         });
@@ -103,6 +117,20 @@ describe('ThriftDriverTest', function() {
         debug('execute test start,...');
 
         cursor.execute(util.format(sql, limit), function (err) {
+          callback(err);
+        });
+      },
+      function (callback) {
+        debug('get operation status test start,...');
+
+        cursor.getOperationStatus(function (err) {
+          callback(err);
+        });
+      },
+      function (callback) {
+        debug('get operation status test start,...');
+
+        cursor.getLog(function (err) {
           callback(err);
         });
       },
