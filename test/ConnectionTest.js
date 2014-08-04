@@ -1,26 +1,24 @@
 process.env.DEBUG = 'jshs2:connection,jshs2:cursor,jsh2:ConnectionTest,tcliservice:Service';
 
-var should = require('should');
-var debug = require('debug')('jsh2:ConnectionTest');
-var util = require('util');
+var should = require('should')
+  debug = require('debug')('jsh2:ConnectionTest'),
+  util = require('util'),
+  fs = require('fs');
 
 describe('ThriftDriverTest', function() {
   it('ImpalaDriverTest', function (done) {
-    var async = require('async');
-    var jshs2 = require('../index.js');
+    var async = require('async'),
+      jshs2 = require('../index.js'),
+      conf;
+
+    conf = JSON.parse(fs.readFileSync('cluster.json'))['impala'];
 
     debug('HiveServerConnectionTest start,...');
 
-    var impala = {
-      host: 'localhost',
-      port: '21050',
-      auth: 'NOSASL'
-    };
-
-    var conn = new jshs2.Connections(impala);
-    var cursor = conn.cursor();
-    var limit = 3000;
-    var sql = 'select 1';  // enter your query
+    var conn = new jshs2.Connections(conf),
+      cursor = conn.cursor(),
+      limit = 2000,
+      sql = conf.query;
 
     async.waterfall([
       function (callback) {
@@ -44,17 +42,21 @@ describe('ThriftDriverTest', function() {
           callback(err);
         });
       },
+//      function (callback) {
+//        debug('get operation status test start,...');
+//
+//        cursor.getLog(function (err) {
+//          callback(err);
+//        });
+//      },
       function (callback) {
-        debug('get operation status test start,...');
-
-        cursor.getLog(function (err) {
-          callback(err);
-        });
-      },
-      function (callback) {
-        cursor.getShcema(function (err, columns) {
-          callback(err, columns);
-        });
+        try {
+          cursor.getShcema(function (err, columns) {
+            callback(err, columns);
+          });
+        } catch (err) {
+          debug('error caused: ' + err.message);
+        }
       },
       function (columns, callback) {
         cursor.jsonFetch(columns, function (err, result) {
@@ -89,21 +91,17 @@ describe('ThriftDriverTest', function() {
   });
 
   it('HiveDriverTest', function (done) {
-    var async = require('async');
-    var jshs2 = require('../index.js');
+    var async = require('async'),
+      jshs2 = require('../index.js'),
+      conf;
 
     debug('HiveServerConnectionTest start,...');
+    conf = JSON.parse(fs.readFileSync('cluster.json'))['impala'];
 
-    var hive = {
-      host: 'localhost',
-      port: '10000',
-      auth: 'NOSASL'
-    };
-
-    var conn = new jshs2.Connections(hive);
-    var cursor = conn.cursor();
-    var limit = 3000;
-    var sql = 'select 1'; // enter your query
+    var conn = new jshs2.Connections(conf),
+      cursor = conn.cursor(),
+      limit = 2000,
+      sql = conf.query;
 
     async.waterfall([
       function (callback) {
