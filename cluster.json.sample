@@ -1,0 +1,21 @@
+{
+  "Impala": {
+    "ConnectionString": "jdbc:hive2://#{{URI}}/;auth=noSasl;impersonnation_enable=true;",
+    "LoginTimeout": 10000,
+    "Port": 1234,
+    "Servers": [
+      "011.022.033.044"
+    ],
+    "query": "SELECT * FROM test.test_table limit ${{limit}}"
+  },
+  "Hive": {
+    "ConnectionString": "jdbc:hive2://#{{URI}}/;impersonnation_enable=true;",
+    "LoginTimeout": 10000,
+    "Port": 1234,
+    "Servers": [
+      "011.022.033.044"
+    ],
+    "username": "superman",
+    "query": "SELECT * FROM test.test_table limit ${{limit}}"
+  }
+}

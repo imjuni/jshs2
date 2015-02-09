@@ -1,16 +1,20 @@
 {
-  "name": "jshs2",
-  "version": "0.0.12",
+  "name": "JSHS2",
+  "version": "0.0.14",
   "private": true,
+  "engines": {
+    "iojs": ">=1.1.0",
+    "node": ">=0.11.14"
+  },
   "dependencies": {
-    "async": "^0.9.0",
-    "debug": "^1.0.4",
-    "lodash": "^2.4.1",
-    "node-int64": "^0.3.1",
-    "thrift": "^0.9.1"
+    "debug": "^2.1.1",
+    "lodash": "^3.1.0",
+    "node-int64": "^0.3.3",
+    "thrift": "^0.9.2"
   },
   "devDependencies": {
-    "mocha": "^1.20.1",
-    "should": "^4.0.4"
+    "async": "^0.9.0",
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0"
   }
 }
