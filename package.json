@@ -1,5 +1,5 @@
 {
-  "name": "JSHS2",
+  "name": "jshs2",
   "version": "0.0.15",
   "description": "Hive Server2 Driver for Javascript",
   "keywords": ["Hive", "Thrift", "HiveServer2"],
@@ -9,7 +9,7 @@
   "author": {
     "name": "ByungJoon, Lee",
     "email": "imjuni@gmail.com",
-    "url": "imjuni.tistory.com"
+    "url": "http://imjuni.tistory.com"
   },
   "repository": {
     "type" : "git",
