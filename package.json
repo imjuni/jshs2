@@ -1,6 +1,6 @@
 {
   "name": "jshs2",
-  "version": "0.0.15",
+  "version": "0.1.0",
   "description": "Hive Server2 Driver for Javascript",
   "keywords": ["Hive", "Thrift", "HiveServer2"],
   "homepage": "https://github.com/imjuni/jshs2",
