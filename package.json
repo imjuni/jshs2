@@ -1,5 +1,5 @@
 {
-  "name": "JSHS2",
+  "name": "jshs2",
   "version": "0.1.0",
   "description": "Hive Server2 Driver for Javascript",
   "keywords": ["Hive", "Thrift", "HiveServer2"],
