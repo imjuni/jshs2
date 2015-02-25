@@ -27,3 +27,4 @@ node_modules
 .idea
 cluster.json
 doc
+report
