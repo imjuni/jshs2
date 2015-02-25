@@ -16,7 +16,8 @@ npm install jshs2
 ```
 
 # Option
-## for Connection
+## Connection
+### Code
 ```
 var connOpt = {
   auth: 'NOSASL',
@@ -29,6 +30,8 @@ var connOpt = {
   cdhVer: '5.3.0'
 };
 ```
+
+### Description
 * auth - using auth mechanisms. At now only support 'NOSASL'
 * host - hive server ip address or domain
 * port - hive server port
@@ -38,12 +41,15 @@ var connOpt = {
 * thriftVer - using thrift version
 * cdhVer - if you using CDH, describe version parameter
 
-## for Cursor
+## Cursor
+### Code
 ```
 var cursorOpt = {
   maxRows: 5120
 };
 ```
+
+### Description
 * maxRows - fetch size
 
 # Hive in CDH
@@ -53,6 +59,21 @@ Cloudera is add GetLog api on hive.
 
 If you using CDH Hive, describe hiveType 'cdh' after you using getLog function.
 Reference Simple Usage
+
+# Interface Description Language(IDL)
+Hive support thrift protocol, that is using by IDL. jshs2 can use your idl(idl for your
+environment). See under idl directory that was created using by simple rule.
+
+* Use Hive in CDH
+    * /idl/Thrift_[Thrift Version]_Hive_[Hive Version]_CDH_Version
+* Use Vanilla Hive
+    * /idl/Thrift_[Thrift Version]_Hive_[Hive Version]
+
+Now jshs2 include & Test Thrift_0.9.2_Hive_0.13.1_CDH_5.3.0, Thrift_0.9.2_Hive_1.0.0
+
+## Custom IDL
+Interface file compile from Hive(hive-0.13.1-cdh5.3.0/service/if). After copy and rename
+jshs2 idl directory, And You specify version. That is it!
 
 # Simple Usage
 ```
