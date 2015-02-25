@@ -15,6 +15,45 @@ Contact imjuni@gmail.com with questions
 npm install jshs2
 ```
 
+# Option
+## for Connection
+```
+var connOpt = {
+  auth: 'NOSASL',
+  host: '101.102.103.104',
+  port: '1234',
+  timeout: 10,
+  username: 'batman'
+  hiveType: 'cdh',
+  thriftVer: '0.9.2',
+  cdhVer: '5.3.0'
+};
+```
+* auth - using auth mechanisms. At now only support 'NOSASL'
+* host - hive server ip address or domain
+* port - hive server port
+* timeout - timeout for connect function
+* username - username for hive server, maybe that logging username on hive server
+* hiveType - Hive Type, CDH or not (that is hive).
+* thriftVer - using thrift version
+* cdhVer - if you using CDH, describe version parameter
+
+## for Cursor
+```
+var cursorOpt = {
+  maxRows: 5120
+};
+```
+* maxRows - fetch size
+
+# Hive in CDH
+getLog function is difference between vanilla Hive and Hive in CDH(CDH Hive).
+CDH Hive must support Hue. And that is display query operation status. So,
+Cloudera is add GetLog api on hive.
+
+If you using CDH Hive, describe hiveType 'cdh' after you using getLog function.
+Reference Simple Usage
+
 # Simple Usage
 ```
 var jshs2 = require('jshs2');
@@ -25,7 +64,10 @@ var connOpt = {
   host: '101.102.103.104',
   port: '1234',
   timeout: 10,
-  username: 'batman'
+  username: 'batman',
+  hiveType: 'cdh',
+  thriftVer: '0.9.2',
+  cdhVer: '5.3.0'
 };
 
 var cursorOpt = {
@@ -87,9 +129,3 @@ async.waterfall([
   done();
 });
 ```
-
-# Apache Hive Server2 & CDH
-JSHS2 running on CDH(Cloudera's open source software distribution and consists of Apache Hadoop
-and additional key open source projects to ensure you get the most out of Hadoop). Because
-getLog function exists on CDH Hive only, Not exists Apache Hive. So, if you need using jshs2
-on Apache Hive server, remove getLog function.
