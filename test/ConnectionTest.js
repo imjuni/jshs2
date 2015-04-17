@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  process.env.DEBUG = 'jshs2:connection,jshs2:cursor,jsh2:ConnectionTest,tcliservice:Service';
+  process.env.DEBUG = 'jshs2:connection,jshs2:cursor,jsh2:ConnectionTestSuite,tcliservice:Service';
 
   var _ = require('lodash');
   var fs = require('fs');
@@ -10,93 +10,10 @@
   var debug = require('debug')('jsh2:ConnectionTestSuite');
 
   describe('ThriftDriverTest', function() {
-  //  it('ImpalaDriverTest', function (done) {
-  //    var async = require('async');
-  //    var jshs2 = require('../index.js');
-  //    var conf;
-  //
-  //    conf = JSON.parse(fs.readFileSync('cluster.json'))['impala'];
-  //
-  //    debug('HiveServerConnectionTest start,...');
-  //
-  //    var conn = new jshs2.Connections(conf);
-  //    var cursor = conn.cursor();
-  //    var limit = 2000;
-  //    var sql = conf.query;
-  //
-  //    async.waterfall([
-  //      function (callback) {
-  //        debug('connect test start,...');
-  //
-  //        conn.connect(function (err) {
-  //          callback(err);
-  //        });
-  //      },
-  //      function (callback) {
-  //        debug('execute test start,...');
-  //
-  //        cursor.execute(util.format(sql, limit), function (err) {
-  //          callback(err);
-  //        });
-  //      },
-  //      function (callback) {
-  //        debug('get operation status test start,...');
-  //
-  //        cursor.getOperationStatus(function (err) {
-  //          callback(err);
-  //        });
-  //      },
-  ////      function (callback) {
-  ////        debug('get operation status test start,...');
-  ////
-  ////        cursor.getLog(function (err) {
-  ////          callback(err);
-  ////        });
-  ////      },
-  //      function (callback) {
-  //        try {
-  //          cursor.getShcema(function (err, columns) {
-  //            callback(err, columns);
-  //          });
-  //        } catch (err) {
-  //          debug('error caused: ' + err.message);
-  //        }
-  //      },
-  //      function (columns, callback) {
-  //        cursor.jsonFetch(columns, function (err, result) {
-  //          callback(err, columns, result);
-  //        });
-  //      },
-  //      function (columns, result, callback) {
-  //        debug('cursor cslose test start,...');
-  //
-  //        cursor.close(function (err) {
-  //          callback(err, columns, result);
-  //        });
-  //      },
-  //      function (columns, result, callback) {
-  //        debug('connection close test start,...');
-  //
-  //        conn.close(function (err) {
-  //          callback(err, columns, result);
-  //        });
-  //      }
-  //    ], function (err, columns, result) {
-  //      if (err) {
-  //        debug('Error caused, ');
-  //        debug('message:  ' + err.message);
-  //      }
-  //
-  //      should.not.exist(err);
-  //      (result.length === limit).should.be.true;
-  //
-  //      done();
-  //    });
-  //  });
-
     it('HiveDriverTest', function (done) {
       var async = require('async');
       var jshs2 = require('../index.js');
+      var EventEmitter = require('events').EventEmitter;
 
       debug('HiveServerConnectionTest start,...');
       var config = JSON.parse(fs.readFileSync('./cluster.json')).Hive;
@@ -113,17 +30,56 @@
         timeout: config.LoginTimeout,
         username: config.username,
         hiveType: 'cdh',
+        hiveVer: '0.13.1',
         thriftVer: '0.9.2',
         cdhVer: '5.3.0'
       };
 
       var cursorOpt = {
-        maxRows: 5120
+        maxRows: 5120,
+        nullStr: 'null'
       };
 
       var conn = new jshs2.Connection(connOpt);
       var limit = 2000;
       var sql = config.query;
+
+      function waiter (cursor, cb) {
+        var ee = new EventEmitter();
+        var i = 0;
+
+        ee.on('start', function (cursor) {
+          cursor.getOperationStatus(function (err, status) {
+            debug('OperationStatus: ' + status);
+
+            if (err) {
+              ee.emit('error', err);
+            } else if (status.toLowerCase() === 'running') {
+              setTimeout(function () {
+                ee.emit('start', cursor);
+              }, 6000);
+            } else if (i > 100) {
+              ee.emit('error', new Error('Timeout, over then 60s'));
+            } else {
+              ee.emit('end', cursor);
+            }
+          });
+        });
+
+        ee.on('error', function (err) {
+          setImmediate(function () {
+            cb(err);
+          });
+        });
+
+        ee.on('end', function (cursor) {
+          setImmediate(function () {
+            cb(null, cursor);
+          });
+        });
+
+        ee.emit('start', cursor);
+      }
 
       async.waterfall([
         function (callback) {
@@ -157,12 +113,15 @@
           });
         },
         function (cursor, callback) {
+          waiter(cursor, callback);
+        },
+        function (cursor, callback) {
           cursor.getSchema(function (err, columns) {
             callback(err, cursor, columns);
           });
         },
         function (cursor, columns, callback) {
-          cursor.jsonFetch(columns, function (err, result) {
+          cursor.fetchBlock(function (err, hasMoreRow, result) {
             callback(err, cursor, columns, result);
           });
         },
@@ -181,17 +140,20 @@
           });
         }
       ], function (err, cursor, columns, result) {
-        if (err) {
-          debug('Error caused, ');
-          debug('message:  ' + err.message);
-          debug('message:  ' + err.stack);
-        }
 
-        should.not.exist(err);
+        setImmediate(function () {
+          if (err) {
+            debug('Error caused, ');
+            debug('message:  ' + err.message);
+            debug('message:  ' + err.stack);
+          }
 
-        (result.length === limit).should.true();
+          should.not.exist(err);
 
-        done();
+          (result.length === limit).should.true();
+
+          done();
+        });
       });
     });
   });
