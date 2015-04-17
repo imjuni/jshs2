@@ -45,12 +45,14 @@ var connOpt = {
 ### Code
 ```
 var cursorOpt = {
-  maxRows: 5120
+  maxRows: 5120,
+  nullStr: 'NULL'
 };
 ```
 
 ### Description
 * maxRows - fetch size
+* nullStr - Maybe column value is NULL, replace nullStr. Default value is 'NULL'.
 
 # Hive in CDH
 getLog function is difference between vanilla Hive and Hive in CDH(CDH Hive).
