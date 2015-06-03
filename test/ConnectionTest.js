@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  process.env.DEBUG = 'jshs2:connection,jshs2:cursor,jsh2:ConnectionTestSuite,tcliservice:Service';
+  process.env.DEBUG = 'jshs2:*';
 
   var _ = require('lodash');
   var fs = require('fs');
@@ -14,7 +14,7 @@
   var debug = require('debug')('jsh2:ConnectionTestSuite');
 
   var jshs2 = require('../index.js');
-  var hs2util = require('../lib/HS2Util');
+  var hs2util = require('../lib/Common/HS2Util');
   var IdlContainer = jshs2.IdlContainer;
 
   function wait (_cursor) {
@@ -111,7 +111,7 @@
 
   describe('ThriftDriverTest', function () {
     it('HiveDriver Promise Test', function (done) {
-      var Connection = jshs2.Connection.HS2PromiseConnection;
+      var Connection = jshs2.PConnection;
       var Configure = jshs2.Configure;
 
       co(function* () {
@@ -133,7 +133,7 @@
         options.timeout = config.Hive.LoginTimeout;
         options.username = config.Hive.username;
         options.hiveType = hs2util.HIVE_TYPE.HIVE;
-        options.hiveVer = '1.2.0';
+        options.hiveVer = '1.1.0';
         options.thriftVer = '0.9.2';
 
         options.maxRows = 5120;
@@ -146,22 +146,22 @@
         var connection = new Connection(configure);
         var cursor = yield connection.connect();
 
-        yield cursor.execute(config.Hive.query02);
+        yield cursor.execute(config.Hive.query);
         yield waitAndLog(cursor);
         var result = yield cursor.fetchBlock();
 
         debug('rows ->', result.rows.length);
         debug('rows ->', result.hasMoreRows);
 
-        result = yield cursor.fetchBlock();
-
-        debug('rows ->', result.rows.length);
-        debug('rows ->', result.hasMoreRows);
-
-        result = yield cursor.fetchBlock();
-
-        debug('rows ->', result.rows.length);
-        debug('rows ->', result.hasMoreRows);
+        //result = yield cursor.fetchBlock();
+        //
+        //debug('rows ->', result.rows.length);
+        //debug('rows ->', result.hasMoreRows);
+        //
+        //result = yield cursor.fetchBlock();
+        //
+        //debug('rows ->', result.rows.length);
+        //debug('rows ->', result.hasMoreRows);
 
         yield connection.close();
 
@@ -181,7 +181,7 @@
     it('HiveDriver Callback Test', function (done) {
       var jshs2 = require('../index.js');
       var IdlContainer = jshs2.IdlContainer;
-      var Connection = jshs2.Connection.HS2CallbackConnection;
+      var Connection = jshs2.CConnection;
       var Configure = jshs2.Configure;
 
       var options, config, configure, connection;
@@ -251,6 +251,8 @@
         });
       });
     });
+
+    /* End of the Callback test */
   });
 
   //describe('ThriftDriverTest', function() {
