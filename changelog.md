@@ -10,3 +10,20 @@ ChangeLog jsHS2
 * Add new feature, Configure and IdlContainer
     * merge connection & cursor configuration
     * IdlContainer is dynamic load IDL
+    
+    
+# 0.2.1
+* Change Configure -> Configuration
+    * use noun
+* Change error message layout
+    * return error message and info message
+* Change IdlContainer
+    * implementation callback version
+    * support promise version using by callback
+    * move to Configuration, because every Configurations have each IdlContainer. Each Configurations has 
+    differents IdlContainer for execute multi version executing
+* Change ConnectionTest
+
+
+# 0.2.2
+* Change changelog.md
