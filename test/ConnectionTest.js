@@ -14,7 +14,6 @@
 
   var jshs2 = require('../index.js');
   var hs2util = require('../lib/Common/HS2Util');
-  var IdlContainer = jshs2.IdlContainer;
 
   function wait (_cursor) {
     var cursor = _cursor;
@@ -27,7 +26,7 @@
       ee.on('wait', function () {
         co(function* () {
           var status = yield cursor.getOperationStatus();
-          var serviceType = IdlContainer.getServiceType();
+          var serviceType = cursor.getConfigure().getServiceType();
 
           debug('wait, status -> ', status);
 
@@ -73,7 +72,7 @@
         co(function* () {
           var status = yield cursor.getOperationStatus();
           var log = yield cursor.getLog();
-          var serviceType = IdlContainer.getServiceType();
+          var serviceType = cursor.getConfigure().getServiceType();
 
           debug('wait, status -> ', hs2util.getState(serviceType, status));
           debug('wait, log -> ', log);
@@ -111,7 +110,7 @@
   describe('ThriftDriverTest', function () {
     it('HiveDriver Promise Test', function (done) {
       var Connection = jshs2.PConnection;
-      var Configure = jshs2.Configure;
+      var Configuration = jshs2.Configuration;
 
       co(function* () {
         var config = JSON.parse(yield new Promise(function (resolve, reject) {
@@ -138,14 +137,14 @@
         options.maxRows = 5120;
         options.nullStr = 'NULL';
 
-        var configure = new Configure(options);
+        var configuration = new Configuration(options);
 
-        yield IdlContainer.initialize(configure);
+        yield configuration.initialize();
 
-        var connection = new Connection(configure);
+        var connection = new Connection(configuration);
         var cursor = yield connection.connect();
 
-        yield cursor.execute(config.Hive.nullQuery03);
+        yield cursor.execute(config.Hive.query1);
         yield waitAndLog(cursor);
 
         var schema = yield cursor.getSchema();
