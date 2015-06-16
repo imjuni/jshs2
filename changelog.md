@@ -27,3 +27,6 @@ ChangeLog jsHS2
 
 # 0.2.2
 * Change changelog.md
+
+# 0.2.3
+* Change version in package.son (for nom publish)
