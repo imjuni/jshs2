@@ -9,7 +9,7 @@
   var co = require('co');
   var EventEmitter = require('events').EventEmitter;
   var should = require('chai').Should();
-  var Promise = require('Promise');
+  var Promise = require('promise');
   var debug = require('debug')('jshs2:OperationTestSuite');
 
   var jshs2 = require('../index.js');
