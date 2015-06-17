@@ -22,7 +22,7 @@
   "private": false,
   "engines": {
     "iojs": ">=1.1.0",
-    "node": ">=0.11.14"
+    "node": ">=0.10.23"
   },
   "dependencies": {
     "co": "^4.5.4",
