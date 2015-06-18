@@ -28,5 +28,10 @@ ChangeLog jsHS2
 # 0.2.2
 * Change changelog.md
 
-# 0.2.3
-* Change version in package.son (for nom publish)
+# 0.2.7
+* Fix require error
+
+# 0.2.8
+* Change README.md
+* add CallbackTest.js
+* rename ConnectionTest.js -> PromiseTest.js
