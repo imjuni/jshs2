@@ -91,9 +91,15 @@ environment). See under idl directory that was created using by simple rule.
 Interface file compile from Hive(hive-0.13.1-cdh5.3.0/service/if). After copy and rename
 jshs2 idl directory, And You specify version. That is it!
 
+# Test
+Using mocha. See test directory, and that is good example.
+```
+sh> cp cluster.json.sample cluster.json # modify value by your environment
+sh> mocha test/
+```
+
 # Simple Usage
 ## Node.js >= 0.11.x (or io.js) 
-
 ```
 var co = require('co');
 var debug = require('debug')('jshs2:test');
