@@ -35,3 +35,6 @@ ChangeLog jsHS2
 * Change README.md
 * add CallbackTest.js
 * rename ConnectionTest.js -> PromiseTest.js
+
+# 0.2.9
+* Bug-fix on CConnection.js (not called thriftConnection.end())
