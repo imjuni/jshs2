@@ -129,17 +129,18 @@ describe('ThriftDriverTest', function () {
         });
       },
       function configurationStep (testEnv, callback) {
-        options.auth = 'NOSASL';
-        options.host = _.first(testEnv.Hive.Servers);
-        options.port = testEnv.Hive.Port;
-        options.timeout = testEnv.Hive.LoginTimeout;
-        options.username = testEnv.Hive.username;
-        options.hiveType = hs2util.HIVE_TYPE.HIVE;
-        options.hiveVer = '1.1.0';
-        options.thriftVer = '0.9.2';
+        options.auth = testEnv[testEnv.use].auth;
+        options.host = testEnv[testEnv.use].host;
+        options.port = testEnv[testEnv.use].port;
+        options.timeout = testEnv[testEnv.use].timeout;
+        options.username = testEnv[testEnv.use].username;
+        options.hiveType = testEnv[testEnv.use].hiveType;
+        options.hiveVer = testEnv[testEnv.use].hiveVer;
+        options.cdhVer = testEnv[testEnv.use].cdhVer;
+        options.thriftVer = testEnv[testEnv.use].thriftVer;
 
-        options.maxRows = 5120;
-        options.nullStr = 'NULL';
+        options.maxRows = testEnv[testEnv.use].maxRows;
+        options.nullStr = testEnv[testEnv.use].nullStr;
 
         var configuration = new Configuration(options);
 
@@ -163,7 +164,7 @@ describe('ThriftDriverTest', function () {
         });
       },
       function executeStep (testEnv, configuration, connection, cursor, callback) {
-        cursor.execute(testEnv.Hive.query, function (err, result) {
+        cursor.execute(testEnv.Query.query, false, function (err, result) {
           debug('Execute, hasMoreRow -> ', result);
 
           if (err) {

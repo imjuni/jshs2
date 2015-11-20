@@ -3,9 +3,11 @@ JSHS2
 
 # Introduction
 jsHS2 is a node.js client driver for hive server 2. See test/ConnectionTest.js, for an example of how to use it. 
-jsHS2 reference from pyhs2 after rewrite javascript. But some feature modify suitable for javascript(ex> Promise support).
+jsHS2 reference from pyhs2 after rewrite javascript. But some feature modify suitable for javascript(ex> Promise support). 
 
 jsHS2 include IDL(Interface Description Language). For example, Thrift_0.9.2_Hive_1.1.0 in idl directory.
+
+
 
 ## I need help!
 And I need your help. jsHS2 is not implementation SASL. I hope that someone add SASL on this project.

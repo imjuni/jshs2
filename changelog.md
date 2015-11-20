@@ -24,7 +24,6 @@ ChangeLog jsHS2
     differents IdlContainer for execute multi version executing
 * Change ConnectionTest
 
-
 # 0.2.2
 * Change changelog.md
 
@@ -38,3 +37,16 @@ ChangeLog jsHS2
 
 # 0.2.9
 * Bug-fix on CConnection.js (not called thriftConnection.end())
+
+# 0.2.10
+* Add option runAsync in execute
+    * This options for cli script
+* Fix idlFactory module loading bug (path problem, fixed it)
+* Fix cluster.json.sample
+    * cluster.json.sample so hard readable, that is fix more readable and easy
+    * cp cluster.json.sample cluster.json
+    * Remove comment (that is starts with '//') and write your environment
+* deps: co@^4.6.0
+* deps: mocha@^2.3.4
+* deps: thrift@^0.9.3
+* deps: lodash@^3.10.1
