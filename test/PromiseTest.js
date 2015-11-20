@@ -124,17 +124,18 @@ describe('ThriftDriverTest', function () {
 
       var options = {};
 
-      options.auth = 'NOSASL';
-      options.host = _.first(config.Hive.Servers);
-      options.port = config.Hive.Port;
-      options.timeout = config.Hive.LoginTimeout;
-      options.username = config.Hive.username;
-      options.hiveType = hs2util.HIVE_TYPE.HIVE;
-      options.hiveVer = '1.1.0';
-      options.thriftVer = '0.9.2';
+      options.auth = config[config.use].auth;
+      options.host = config[config.use].host;
+      options.port = config[config.use].port;
+      options.timeout = config[config.use].timeout;
+      options.username = config[config.use].username;
+      options.hiveType = config[config.use].hiveType;
+      options.hiveVer = config[config.use].hiveVer;
+      options.cdhVer = config[config.use].cdhVer;
+      options.thriftVer = config[config.use].thriftVer;
 
-      options.maxRows = 5120;
-      options.nullStr = 'NULL';
+      options.maxRows = config[config.use].maxRows;
+      options.nullStr = config[config.use].nullStr;
 
       var configuration = new Configuration(options);
 
@@ -143,7 +144,7 @@ describe('ThriftDriverTest', function () {
       var connection = new Connection(configuration);
       var cursor = yield connection.connect();
 
-      yield cursor.execute(config.Hive.query);
+      yield cursor.execute(config.Query.query);
       yield waitAndLog(cursor);
 
       var schema = yield cursor.getSchema();
