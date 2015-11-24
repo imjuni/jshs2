@@ -50,3 +50,11 @@ ChangeLog jsHS2
 * deps: mocha@^2.3.4
 * deps: thrift@^0.9.3
 * deps: lodash@^3.10.1
+
+# 0.2.11
+* fix runAsync option bug
+    * runAsync not working on PCursor.execute
+* Add util isFinish and cSleep, pSleep
+* Fix testcase. Now test sync and async api
+* deps: chai@^3.4.1
+* deps: debug@^2.2.0

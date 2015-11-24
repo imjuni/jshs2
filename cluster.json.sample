@@ -15,8 +15,8 @@
   },
   "ApacheHive": {
     "auth": "NOSASL",
-    "host": "123.123.123.123",
-    "port": 10990,
+    "host": "111.112.113.114",
+    "port": 14444,
     "timeout": 10000,
     "username": "ironman",
     "hiveType": 0,
