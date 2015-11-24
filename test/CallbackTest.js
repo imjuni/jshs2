@@ -1,5 +1,13 @@
 'use strict';
 
+/*
+ * I don't recommend this style, because First, callback version is deprecate 0.3.0.
+ * Second, use latest node.js LTS version (2015/11/24, LTS node.js version is 4.2.2)
+ * that is more secure, faster etc. Third, latest thrift(2015/11/25 latest thrift version
+ * 0.9.4) compile promise spec. . So, jshs2 0.3.0 has deprecate callback version.
+ *
+ */
+
 process.env.DEBUG = 'jshs2:*';
 
 var _ = require('lodash');
@@ -7,12 +15,14 @@ var fs = require('fs');
 var util = require('util');
 var co = require('co');
 var EventEmitter = require('events').EventEmitter;
-var should = require('chai').Should();
+var should = require('chai').should();
 var debug = require('debug')('jshs2:OperationTestSuite');
 var async = require('async');
 
 var jshs2 = require('../index.js');
 var hs2util = require('../lib/Common/HS2Util');
+var Connection = jshs2.CConnection;
+var Configuration = jshs2.Configuration;
 
 function wait (_cursor, callback) {
   var cursor = _cursor;
@@ -111,111 +121,87 @@ function waitAndLog (_cursor, callback) {
 }
 
 describe('ThriftDriverTest', function () {
-  it('HiveDriver Promise Test', function (done) {
-    var Connection = jshs2.CConnection;
-    var Configuration = jshs2.Configuration;
-    var options = {};
+  var testConf = {};
+  var configuration, connection, cursor, serviceType;
 
+  before(function (done) {
     async.waterfall([
-      function loadTestEnvStep (callback) {
+      function clusterJsonReadFile (callback) {
         fs.readFile('./cluster.json', function (err, buf) {
           if (err) {
             callback(err);
           } else {
-            var testEnv = JSON.parse(buf.toString());
+            testConf.config = JSON.parse(buf.toString());
 
-            callback(null, testEnv);
+            callback(null);
           }
         });
       },
-      function configurationStep (testEnv, callback) {
-        options.auth = testEnv[testEnv.use].auth;
-        options.host = testEnv[testEnv.use].host;
-        options.port = testEnv[testEnv.use].port;
-        options.timeout = testEnv[testEnv.use].timeout;
-        options.username = testEnv[testEnv.use].username;
-        options.hiveType = testEnv[testEnv.use].hiveType;
-        options.hiveVer = testEnv[testEnv.use].hiveVer;
-        options.cdhVer = testEnv[testEnv.use].cdhVer;
-        options.thriftVer = testEnv[testEnv.use].thriftVer;
+      function createConfiguration (callback) {
+        testConf.jshs2 = {};
+        testConf.jshs2.auth = testConf.config[testConf.config.use].auth;
+        testConf.jshs2.host = testConf.config[testConf.config.use].host;
+        testConf.jshs2.port = testConf.config[testConf.config.use].port;
+        testConf.jshs2.timeout = testConf.config[testConf.config.use].timeout;
+        testConf.jshs2.username = testConf.config[testConf.config.use].username;
+        testConf.jshs2.hiveType = testConf.config[testConf.config.use].hiveType;
+        testConf.jshs2.hiveVer = testConf.config[testConf.config.use].hiveVer;
+        testConf.jshs2.cdhVer = testConf.config[testConf.config.use].cdhVer;
+        testConf.jshs2.thriftVer = testConf.config[testConf.config.use].thriftVer;
 
-        options.maxRows = testEnv[testEnv.use].maxRows;
-        options.nullStr = testEnv[testEnv.use].nullStr;
+        testConf.jshs2.maxRows = testConf.config[testConf.config.use].maxRows;
+        testConf.jshs2.nullStr = testConf.config[testConf.config.use].nullStr;
 
-        var configuration = new Configuration(options);
+        callback(null);
+      },
+      function initializeConfiguration (callback) {
+        configuration = new Configuration(testConf.jshs2);
 
         configuration.cb$initialize(function (err) {
           if (err) {
             callback(err);
           } else {
-            callback(null, testEnv, configuration);
+            callback(null);
           }
         });
       },
-      function connectStep (testEnv, configuration, callback) {
-        var connection = new Connection(configuration);
+      function createConnection (callback) {
+        connection = new Connection(configuration);
 
-        connection.connect(function (err, cursor) {
+        connection.connect(function (err, _cursor) {
           if (err) {
             callback(err);
           } else {
-            callback(null, testEnv, configuration, connection, cursor);
+            cursor = _cursor;
+            callback(null);
           }
         });
-      },
-      function executeStep (testEnv, configuration, connection, cursor, callback) {
-        cursor.execute(testEnv.Query.query, false, function (err, result) {
-          debug('Execute, hasMoreRow -> ', result);
+      }
+    ], function (err) {
+      if (err) {
+        debug('Error caused from Callback Test before, ...');
+        debug(err.message);
+        debug(err.stack);
+      } else {
+        setImmediate(function () {
+          done();
+        });
+      }
+    });
+  });
 
-          if (err) {
-            callback(err);
-          } else {
-            callback(null, testEnv, configuration, connection, cursor);
-          }
-        });
-      },
-      function waitAndLogStep (testEnv, configuration, connection, cursor, callback) {
-        waitAndLog(cursor, function (err) {
-          if (err) {
-            callback(err);
-          } else {
-            callback(null, testEnv, configuration, connection, cursor);
-          }
-        });
-      },
-      function schemaStep (testEnv, configuration, connection, cursor, callback) {
-        cursor.getSchema(function (err, schema) {
-          if (err) {
-            callback(err);
-          } else {
-            debug('schema -> ', schema);
-
-            callback(null, testEnv, configuration, connection, cursor);
-          }
-        });
-      },
-      function fetchBlockStep (testEnv, configuration, connection, cursor, callback) {
-        cursor.fetchBlock(function (err, result) {
-          if (err) {
-            callback(err);
-          } else {
-            debug('rows ->', result.rows.length);
-            debug('rows ->', result.hasMoreRows);
-
-            callback(null, testEnv, configuration, connection, cursor);
-          }
-        });
-      },
-      function cursorCloseStep (testEnv, configuration, connection, cursor, callback) {
+  after(function (done) {
+    async.waterfall([
+      function closeCursor (callback) {
         cursor.close(function (err) {
           if (err) {
             callback(err);
           } else {
-            callback(null, testEnv, configuration, connection, cursor);
+            callback(null);
           }
         });
       },
-      function connectionCloseStep (testEnv, configuration, connection, cursor, callback) {
+      function connectionClose (callback) {
         connection.close(function (err) {
           if (err) {
             callback(err);
@@ -226,6 +212,64 @@ describe('ThriftDriverTest', function () {
       }
     ], function (err) {
       if (err) {
+        debug('Error caused from Callback Test after, ...');
+        debug(err.message);
+        debug(err.stack);
+      } else {
+        setImmediate(function () {
+          done();
+        });
+      }
+    });
+  });
+
+  it('HiveDriver Promise Test Async', function (done) {
+    async.waterfall([
+      function executeStep (callback) {
+        cursor.execute(testConf.config.Query.query, true, function (err, result) {
+          debug('Execute, hasMoreRow -> ', result);
+
+          if (err) {
+            callback(err);
+          } else {
+            callback(null);
+          }
+        });
+      },
+      function waitAndLogStep (callback) {
+        waitAndLog(cursor, function (err) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null);
+          }
+        });
+      },
+      function schemaStep (callback) {
+        cursor.getSchema(function (err, schema) {
+          if (err) {
+            callback(err);
+          } else {
+            debug('schema -> ', schema);
+
+            callback(null);
+          }
+        });
+      },
+      function fetchBlockStep (callback) {
+        cursor.fetchBlock(function (err, result) {
+          if (err) {
+            callback(err);
+          } else {
+            debug('rows ->', result.rows.length);
+            debug('rows ->', result.hasMoreRows);
+
+            callback(null, result.rows);
+          }
+        });
+      }
+    ], function (err, rows) {
+      if (err) {
         debug('Error caused, ');
         debug('message:  ' + err.message);
         debug('message:  ' + err.stack);
@@ -235,6 +279,63 @@ describe('ThriftDriverTest', function () {
         });
       } else {
         setImmediate(function () {
+          should.not.equal(rows.length > 1);
+
+          done();
+        });
+      }
+    });
+  });
+
+  it('HiveDriver Promise Test Sync', function (done) {
+    async.waterfall([
+      function executeStep (callback) {
+        cursor.execute(testConf.config.Query.query, false, function (err, result) {
+          debug('Execute, hasMoreRow -> ', result);
+
+          if (err) {
+            callback(err);
+          } else {
+            callback(null);
+          }
+        });
+      },
+      function schemaStep (callback) {
+        cursor.getSchema(function (err, schema) {
+          if (err) {
+            callback(err);
+          } else {
+            debug('schema -> ', schema);
+
+            callback(null);
+          }
+        });
+      },
+      function fetchBlockStep (callback) {
+        cursor.fetchBlock(function (err, result) {
+          if (err) {
+            callback(err);
+          } else {
+            debug('rows ->', result.rows.length);
+            debug('rows ->', result.hasMoreRows);
+
+            callback(null, result.rows);
+          }
+        });
+      }
+    ], function (err, rows) {
+      if (err) {
+        debug('Error caused, ');
+        debug('message:  ' + err.message);
+        debug('message:  ' + err.stack);
+
+        setImmediate(function () {
+          should.not.exist(err);
+        });
+      } else {
+        setImmediate(function () {
+          should.not.equal(rows.length > 1);
+
           done();
         });
       }

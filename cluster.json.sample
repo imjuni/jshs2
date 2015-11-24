@@ -15,10 +15,10 @@
   },
   "ApacheHive": {
     "auth": "NOSASL",
-    "host": "172.22.212.70",
-    "port": 10200,
+    "host": "111.112.113.114",
+    "port": 14444,
     "timeout": 10000,
-    "username": "1002099",
+    "username": "ironman",
     "hiveType": 0,
     "hiveVer": "1.1.0",
     "thriftVer": "0.9.2",
