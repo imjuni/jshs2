@@ -151,6 +151,7 @@ describe('ThriftDriverTest', function () {
 
         testConf.jshs2.maxRows = testConf.config[testConf.config.use].maxRows;
         testConf.jshs2.nullStr = testConf.config[testConf.config.use].nullStr;
+        testConf.jshs2.i64ToString = testConf.config[testConf.config.use].i64ToString;
 
         callback(null);
       },
@@ -232,43 +233,51 @@ describe('ThriftDriverTest', function () {
           if (err) {
             callback(err);
           } else {
-            callback(null);
+            callback(null, result);
           }
         });
       },
-      function waitAndLogStep (callback) {
+      function waitAndLogStep (execResult, callback) {
         waitAndLog(cursor, function (err) {
           if (err) {
             callback(err);
           } else {
-            callback(null);
+            callback(null, execResult);
           }
         });
       },
-      function schemaStep (callback) {
-        cursor.getSchema(function (err, schema) {
-          if (err) {
-            callback(err);
-          } else {
-            debug('schema -> ', schema);
+      function schemaStep (execResult, callback) {
+        if (execResult.hasResultSet) {
+          cursor.getSchema(function (err, schema) {
+            if (err) {
+              callback(err);
+            } else {
+              debug('schema -> ', schema);
 
-            callback(null);
-          }
-        });
+              callback(null, execResult);
+            }
+          });
+        } else {
+          callback(null, execResult);
+        }
       },
-      function fetchBlockStep (callback) {
-        cursor.fetchBlock(function (err, result) {
-          if (err) {
-            callback(err);
-          } else {
-            debug('rows ->', result.rows.length);
-            debug('rows ->', result.hasMoreRows);
+      function fetchBlockStep (execResult, callback) {
+        if (execResult.hasResultSet) {
+          cursor.fetchBlock(function (err, result) {
+            if (err) {
+              callback(err);
+            } else {
+              debug('rows ->', result.rows.length);
+              debug('rows ->', result.hasMoreRows);
 
-            callback(null, result.rows);
-          }
-        });
+              callback(null, execResult, result.rows);
+            }
+          });
+        } else {
+          callback(null, execResult);
+        }
       }
-    ], function (err, rows) {
+    ], function (err, execResult, rows) {
       if (err) {
         debug('Error caused, ');
         debug('message:  ' + err.message);
@@ -279,7 +288,7 @@ describe('ThriftDriverTest', function () {
         });
       } else {
         setImmediate(function () {
-          should.not.equal(rows.length > 1);
+          should.not.equal(!execResult.hasResultSet || rows.length > 1);
 
           done();
         });
@@ -296,34 +305,42 @@ describe('ThriftDriverTest', function () {
           if (err) {
             callback(err);
           } else {
-            callback(null);
+            callback(null, result);
           }
         });
       },
-      function schemaStep (callback) {
-        cursor.getSchema(function (err, schema) {
-          if (err) {
-            callback(err);
-          } else {
-            debug('schema -> ', schema);
+      function schemaStep (execResult, callback) {
+        if (execResult.hasResultSet) {
+          cursor.getSchema(function (err, schema) {
+            if (err) {
+              callback(err);
+            } else {
+              debug('schema -> ', schema);
 
-            callback(null);
-          }
-        });
+              callback(null, execResult);
+            }
+          });
+        } else {
+          callback(null, execResult);
+        }
       },
-      function fetchBlockStep (callback) {
-        cursor.fetchBlock(function (err, result) {
-          if (err) {
-            callback(err);
-          } else {
-            debug('rows ->', result.rows.length);
-            debug('rows ->', result.hasMoreRows);
+      function fetchBlockStep (execResult, callback) {
+        if (execResult.hasResultSet) {
+          cursor.fetchBlock(function (err, result) {
+            if (err) {
+              callback(err);
+            } else {
+              debug('rows ->', result.rows.length);
+              debug('rows ->', result.hasMoreRows);
 
-            callback(null, result.rows);
-          }
-        });
+              callback(null, execResult, result.rows);
+            }
+          });
+        } else {
+          callback(null, execResult);
+        }
       }
-    ], function (err, rows) {
+    ], function (err, execResult, rows) {
       if (err) {
         debug('Error caused, ');
         debug('message:  ' + err.message);
@@ -334,7 +351,7 @@ describe('ThriftDriverTest', function () {
         });
       } else {
         setImmediate(function () {
-          should.not.equal(rows.length > 1);
+          should.not.equal(!execResult.hasResultSet || rows.length > 1);
 
           done();
         });

@@ -47,6 +47,7 @@ describe('ThriftDriverTest', function () {
 
       options.maxRows = config[config.use].maxRows;
       options.nullStr = config[config.use].nullStr;
+      options.i64ToString = config[config.use].i64ToString;
 
       testConf.config = config;
       testConf.jshs2 = options;
@@ -91,9 +92,9 @@ describe('ThriftDriverTest', function () {
 
   it('HiveDriver Promise Test Async', function (done) {
     co(function* () {
-      var i, len, status, log;
+      var i, len, status, log, execResult, fetchResult, schema;
 
-      yield cursor.execute(testConf.config.Query.query);
+      execResult = yield cursor.execute(testConf.config.Query.query);
 
       for (i = 0, len = 1000; i < len; i++) {
         status = yield cursor.getOperationStatus();
@@ -111,19 +112,25 @@ describe('ThriftDriverTest', function () {
         yield hs2util.pSleep(10000);
       }
 
-      var schema = yield cursor.getSchema();
+      if (execResult.hasResultSet) {
+        schema = yield cursor.getSchema();
 
-      debug('schema -> ', schema);
+        debug('schema -> ', schema);
 
-      var result = yield cursor.fetchBlock();
+        fetchResult = yield cursor.fetchBlock();
 
-      debug('rows ->', result.rows.length);
-      debug('rows ->', result.hasMoreRows);
+        debug('first row ->', JSON.stringify(fetchResult.rows[0]));
+        debug('rows ->', fetchResult.rows.length);
+        debug('rows ->', fetchResult.hasMoreRows);
+      }
 
-      return result.rows;
+      return {
+        hasResultSet: execResult.hasResultSet,
+        rows: (execResult.hasResultSet) ? fetchResult.rows : []
+      };
 
-    }).then(function (rows) {
-      should.not.equal(rows.lenght > 1);
+    }).then(function (data) {
+      should.not.equal(!data.hasResultSet || data.rows.length > 1);
 
       done();
     }).catch(function (err) {
@@ -139,21 +146,27 @@ describe('ThriftDriverTest', function () {
 
   it('HiveDriver Promise Test Sync', function (done) {
     co(function* () {
-      yield cursor.execute(testConf.config.Query.query, false);
+      var execResult, schema, fetchResult;
 
-      var schema = yield cursor.getSchema();
+      execResult = yield cursor.execute(testConf.config.Query.query, false);
 
-      debug('schema -> ', schema);
+      if (execResult.hasResultSet) {
+        schema = yield cursor.getSchema();
 
-      var result = yield cursor.fetchBlock();
+        debug('schema -> ', schema);
 
-      debug('rows ->', result.rows.length);
-      debug('rows ->', result.hasMoreRows);
+        fetchResult = yield cursor.fetchBlock();
 
-      return result.rows;
+        debug('rows ->', fetchResult.rows.length);
+        debug('rows ->', fetchResult.hasMoreRows);
+      }
 
-    }).then(function (rows) {
-      should.not.equal(rows.length > 1);
+      return {
+        hasResultSet: execResult.hasResultSet,
+        rows: (execResult.hasResultSet) ? fetchResult.rows : []
+      };
+    }).then(function (data) {
+      should.not.equal(!data.hasResultSet || data.rows.length > 1);
 
       done();
     }).catch(function (err) {

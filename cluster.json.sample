@@ -11,7 +11,8 @@
     "cdhVer": "5.3.0", // cdh version
     "thriftVer": "0.9.2", // thrift version
     "maxRows": 5120, // max row
-    "nullStr": "NULL" // NULL field replace to this string
+    "nullStr": "NULL", // NULL field replace to this string
+    "i64ToString": true // If you use i64 value that set true
   },
   "ApacheHive": {
     "auth": "NOSASL",
@@ -23,7 +24,8 @@
     "hiveVer": "1.1.0",
     "thriftVer": "0.9.2",
     "maxRows": 5120,
-    "nullStr": "NULL"
+    "nullStr": "NULL",
+    "i64ToString": true
   },
   "Query": {
     "query": "select * from default.something where part_date > '20141111'" // Enter your query

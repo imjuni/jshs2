@@ -58,3 +58,18 @@ ChangeLog jsHS2
 * Fix testcase. Now test sync and async api
 * deps: chai@^3.4.1
 * deps: debug@^2.2.0
+
+# 0.2.12
+* Fix bug from CallbackTest and PromiseTest. If resultset hasn't rows after cause error. Because test always try getSchema and fetch.
+* Fix bug from CCursor. If error caused from close, return reject. But reject not defined function, fix it.
+* add Configuration option i64ToString. int64 convert i64val to float64. Int64 cannot convert float64, return Infinity. i64ToString is to true, convert string value of real value. 
+    * If you not set i64ToString that is to set true. You don't wanna this feature that flag set false.
+    * update cluster.json
+    * update testcase
+
+```
+# example
+
+i64ToString true, 7614985126350998549 -> '7614985126350998549' 
+i64ToString false, 7614985126350998549 -> Infinity
+```
