@@ -73,3 +73,14 @@ ChangeLog jsHS2
 i64ToString true, 7614985126350998549 -> '7614985126350998549' 
 i64ToString false, 7614985126350998549 -> Infinity
 ```
+
+# 0.3.0
+* Hive thrift interface description language added.
+    * Thrift 0.9.2 + Hive 1.2.1
+    * Thrift 0.9.2 + Hive 2.0.0
+    * Thrift 0.9.3 + Hive 1.0.0
+    * Thrift 0.9.3 + Hive 1.1.0
+    * Thrift 0.9.3 + Hive 1.2.0
+    * Thrift 0.9.3 + Hive 1.2.1
+    * Thrift 0.9.3 + Hive 2.0.0
+* Meaningless IIFE expression on CCursor.js, Cursor.js, PCursor
