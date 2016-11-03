@@ -30,3 +30,4 @@ test/mocha.opts
 cluster.json
 doc
 report
+yarn.lock
