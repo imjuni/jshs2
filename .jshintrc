@@ -1,6 +1,0 @@
-{
-  "newcap": false,
-  "node": true,
-  "esnext": true,
-  "predef": ["module", "process", "global", "setImmediate"]
-}

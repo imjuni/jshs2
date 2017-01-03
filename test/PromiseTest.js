@@ -1,119 +1,103 @@
-'use strict';
+/* eslint-env node, mocha */
+/* global describe, after, it */
 
 process.env.DEBUG = 'jshs2:*';
 
-var _ = require('lodash');
-var fs = require('fs');
-var util = require('util');
-var co = require('co');
-var EventEmitter = require('events').EventEmitter;
-var should = require('chai').should();
-var Promise = require('promise');
-var debug = require('debug')('jshs2:OperationTestSuite');
+const fs = require('fs');
+const co = require('co');
+const should = require('chai').should();
+const debug = require('debug')('jshs2:OperationTestSuite');
+const jshs2 = require('../index.js');
 
-var jshs2 = require('../index.js');
-var hs2util = require('../lib/Common/HS2Util');
-var Connection = jshs2.PConnection;
-var Configuration = jshs2.Configuration;
+const HS2Util = jshs2.HS2Util;
+const IDLContainer = jshs2.IDLContainer;
+const HiveConnection = jshs2.HiveConnection;
+const Configuration = jshs2.Configuration;
 
-describe('ThriftDriverTest', function () {
+describe('ThriftDriverTest', () => {
   // Test environment variable
-  var testConf = {};
-  var configuration, connection, cursor, serviceType;
+  const config = JSON.parse(fs.readFileSync('./cluster.json'));
+  const options = {};
 
-  before(function (done) {
-    co(function* () {
-      var config = JSON.parse(yield new Promise(function (resolve, reject) {
-        fs.readFile('./cluster.json', function (err, buf) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(buf);
-          }
-        });
-      }));
+  options.auth = config[config.use].auth;
+  options.host = config[config.use].host;
+  options.port = config[config.use].port;
+  options.timeout = config[config.use].timeout;
+  options.username = config[config.use].username;
+  options.hiveType = config[config.use].hiveType;
+  options.hiveVer = config[config.use].hiveVer;
+  options.cdhVer = config[config.use].cdhVer;
+  options.thriftVer = config[config.use].thriftVer;
 
-      var options = {};
+  options.maxRows = config[config.use].maxRows;
+  options.nullStr = config[config.use].nullStr;
+  options.i64ToString = config[config.use].i64ToString;
 
-      options.auth = config[config.use].auth;
-      options.host = config[config.use].host;
-      options.port = config[config.use].port;
-      options.timeout = config[config.use].timeout;
-      options.username = config[config.use].username;
-      options.hiveType = config[config.use].hiveType;
-      options.hiveVer = config[config.use].hiveVer;
-      options.cdhVer = config[config.use].cdhVer;
-      options.thriftVer = config[config.use].thriftVer;
+  const configuration = new Configuration(options);
+  const idl = new IDLContainer();
 
-      options.maxRows = config[config.use].maxRows;
-      options.nullStr = config[config.use].nullStr;
-      options.i64ToString = config[config.use].i64ToString;
+  let connection;
+  let cursor;
+  let serviceType;
 
-      testConf.config = config;
-      testConf.jshs2 = options;
+  before((done) => {
+    co(function* coroutine() {
+      yield idl.initialize(configuration);
 
-      configuration = new Configuration(testConf.jshs2);
-
-      yield configuration.initialize();
-
-      connection = new Connection(configuration);
+      connection = new HiveConnection(configuration, idl);
       cursor = yield connection.connect();
-
-      serviceType = cursor.getConfigure().getServiceType();
-
-    }).then(function () {
+      serviceType = idl.ServiceType;
+    }).then(() => {
       debug('before task complete, ...');
 
-      setImmediate(function () {
+      setImmediate(() => {
         done();
       });
-    }).catch(function (err) {
+    }).catch((err) => {
       debug('Error caused from before task, ...');
       debug(err.message);
       debug(err.stack);
     });
   });
 
-  after(function (done) {
-    co(function* () {
-      yield cursor.close();
+  // after((done) => {
+  //   co(function* coroutine() {
+  //     yield cursor.close();
+  //     yield connection.close();
+  //   }).then(() => {
+  //     setImmediate(() => {
+  //       done();
+  //     });
+  //   }).catch((err) => {
+  //     debug('Error caused from after task, ...');
+  //     debug(err.message);
+  //     debug(err.stack);
+  //   });
+  // });
 
-      yield connection.close();
-    }).then(function () {
-      setImmediate(function () {
-        done();
-      });
-    }).catch(function (err) {
-      debug('Error caused from after task, ...');
-      debug(err.message);
-      debug(err.stack);
-    });
-  });
+  it('HiveDriver Promise Test Async', (done) => {
+    co(function* coroutine() {
+      const execResult = yield cursor.execute(config.Query.query);
 
-  it('HiveDriver Promise Test Async', function (done) {
-    co(function* () {
-      var i, len, status, log, execResult, fetchResult, schema;
+      for (let i = 0, len = 1000; i < len; i += 1) {
+        const status = yield cursor.getOperationStatus();
+        const log = yield cursor.getLog();
 
-      execResult = yield cursor.execute(testConf.config.Query.query);
-
-      for (i = 0, len = 1000; i < len; i++) {
-        status = yield cursor.getOperationStatus();
-        log = yield cursor.getLog();
-
-        debug('wait, status -> ', hs2util.getState(serviceType, status));
+        debug('wait, status -> ', HS2Util.getState(serviceType, status));
         debug('wait, log -> ', log);
 
-        if (hs2util.isFinish(cursor, status)) {
+        if (HS2Util.isFinish(cursor, status)) {
           debug('Status -> ', status, ' -> stop waiting');
 
           break;
         }
 
-        yield hs2util.pSleep(10000);
+        yield HS2Util.sleep(10000);
       }
 
+      let fetchResult;
       if (execResult.hasResultSet) {
-        schema = yield cursor.getSchema();
+        const schema = yield cursor.getSchema();
 
         debug('schema -> ', schema);
 
@@ -126,32 +110,30 @@ describe('ThriftDriverTest', function () {
 
       return {
         hasResultSet: execResult.hasResultSet,
-        rows: (execResult.hasResultSet) ? fetchResult.rows : []
+        rows: (execResult.hasResultSet) ? fetchResult.rows : [],
       };
-
-    }).then(function (data) {
+    }).then((data) => {
       should.not.equal(!data.hasResultSet || data.rows.length > 1);
 
-      done();
-    }).catch(function (err) {
-      debug('Error caused, ');
-      debug('message:  ' + err.message);
-      debug('message:  ' + err.stack);
-
-      setImmediate(function () {
-        should.not.exist(err);
+      setImmediate(() => {
+        done();
       });
+    }).catch((err) => {
+      debug('Error caused, ');
+      debug(`message:  ${err.message}`);
+      debug(`stack:  ${err.stack}`);
+
+      err.should.not.exist();
     });
   });
 
-  it('HiveDriver Promise Test Sync', function (done) {
-    co(function* () {
-      var execResult, schema, fetchResult;
+  it('HiveDriver Promise Test Sync', (done) => {
+    co(function* coroutine() {
+      const execResult = yield cursor.execute(config.Query.query, false);
 
-      execResult = yield cursor.execute(testConf.config.Query.query, false);
-
+      let fetchResult;
       if (execResult.hasResultSet) {
-        schema = yield cursor.getSchema();
+        const schema = yield cursor.getSchema();
 
         debug('schema -> ', schema);
 
@@ -163,22 +145,20 @@ describe('ThriftDriverTest', function () {
 
       return {
         hasResultSet: execResult.hasResultSet,
-        rows: (execResult.hasResultSet) ? fetchResult.rows : []
+        rows: (execResult.hasResultSet) ? fetchResult.rows : [],
       };
-    }).then(function (data) {
+    }).then((data) => {
       should.not.equal(!data.hasResultSet || data.rows.length > 1);
 
-      done();
-    }).catch(function (err) {
-      debug('Error caused, ');
-      debug('message:  ' + err.message);
-      debug('message:  ' + err.stack);
-
-      setImmediate(function () {
-        should.not.exist(err);
+      setImmediate(() => {
+        done();
       });
+    }).catch((err) => {
+      debug('Error caused, ');
+      debug(`message:  ${err.message}`);
+      debug(`stack:  ${err.stack}`);
+
+      err.should.not.exist();
     });
   });
-
-  /* End of the Callback test */
 });

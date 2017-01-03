@@ -1,6 +1,6 @@
 {
   "name": "jshs2",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Hive Server2 Driver for Javascript",
   "keywords": [
     "Hive",
@@ -9,11 +9,14 @@
   ],
   "homepage": "https://github.com/imjuni/jshs2",
   "bugs": "https://github.com/imjuni/jshs2/issues",
-  "license": "MIT license",
+  "license": "MIT",
   "author": {
     "name": "ByungJoon, Lee",
     "email": "imjuni@gmail.com",
     "url": "http://imjuni.tistory.com"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint lib/**; exit 0"
   },
   "repository": {
     "type": "git",
@@ -21,12 +24,13 @@
   },
   "private": false,
   "engines": {
-    "node": ">=0.10.23"
+    "node": ">=0.7.x"
   },
   "dependencies": {
     "big.js": "^3.1.3",
     "debug": "^2.2.0",
     "lodash": "^3.10.1",
+    "moment": "^2.17.1",
     "node-int64": "^0.3.3",
     "promise": "^7.0.1",
     "thrift": "^0.9.3"
@@ -35,6 +39,12 @@
     "async": "^0.9.0",
     "chai": "^3.4.1",
     "co": "^4.6.0",
+    "eslint": "^3.12.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-react": "^6.8.0",
+    "exit": "^0.1.2",
     "mocha": "^3.1.2"
   }
 }

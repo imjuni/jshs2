@@ -84,3 +84,9 @@ i64ToString false, 7614985126350998549 -> Infinity
     * Thrift 0.9.3 + Hive 1.2.1
     * Thrift 0.9.3 + Hive 2.0.0
 * Meaningless IIFE expression on CCursor.js, Cursor.js, PCursor
+
+
+# 0.4.0
+* Refactoring code for Node.js 7.x
+* Fix-testcase
+* Apply eslint
