@@ -1,12 +1,10 @@
 /* eslint-env node, mocha */
 /* global describe, after, it */
 
-process.env.DEBUG = 'jshs2:*';
-
 const fs = require('fs');
 const co = require('co');
-const should = require('chai').should();
-const debug = require('debug')('jshs2:OperationTestSuite');
+const expect = require('chai').expect;
+const debug = require('debug')('jshs2:PromiseTest');
 const jshs2 = require('../index.js');
 
 const HS2Util = jshs2.HS2Util;
@@ -57,23 +55,31 @@ describe('ThriftDriverTest', () => {
       debug('Error caused from before task, ...');
       debug(err.message);
       debug(err.stack);
+
+      setImmediate(() => {
+        expect(err).to.not.exist();
+      });
     });
   });
 
-  // after((done) => {
-  //   co(function* coroutine() {
-  //     yield cursor.close();
-  //     yield connection.close();
-  //   }).then(() => {
-  //     setImmediate(() => {
-  //       done();
-  //     });
-  //   }).catch((err) => {
-  //     debug('Error caused from after task, ...');
-  //     debug(err.message);
-  //     debug(err.stack);
-  //   });
-  // });
+  after((done) => {
+    co(function* coroutine() {
+      yield cursor.close();
+      yield connection.close();
+    }).then(() => {
+      setImmediate(() => {
+        done();
+      });
+    }).catch((err) => {
+      debug('Error caused from after task, ...');
+      debug(err.message);
+      debug(err.stack);
+
+      setImmediate(() => {
+        expect(err).to.not.exist();
+      });
+    });
+  });
 
   it('HiveDriver Promise Test Async', (done) => {
     co(function* coroutine() {
@@ -92,8 +98,10 @@ describe('ThriftDriverTest', () => {
           break;
         }
 
-        yield HS2Util.sleep(10000);
+        yield HS2Util.sleep(5000);
       }
+
+      debug('execResult -> ', execResult);
 
       let fetchResult;
       if (execResult.hasResultSet) {
@@ -113,9 +121,10 @@ describe('ThriftDriverTest', () => {
         rows: (execResult.hasResultSet) ? fetchResult.rows : [],
       };
     }).then((data) => {
-      should.not.equal(!data.hasResultSet || data.rows.length > 1);
-
       setImmediate(() => {
+        expect(data.hasResultSet).to.exist;
+        expect(data.rows.length).to.be.a('number');
+
         done();
       });
     }).catch((err) => {
@@ -123,7 +132,9 @@ describe('ThriftDriverTest', () => {
       debug(`message:  ${err.message}`);
       debug(`stack:  ${err.stack}`);
 
-      err.should.not.exist();
+      setImmediate(() => {
+        expect(err).to.not.exist();
+      });
     });
   });
 
@@ -148,9 +159,10 @@ describe('ThriftDriverTest', () => {
         rows: (execResult.hasResultSet) ? fetchResult.rows : [],
       };
     }).then((data) => {
-      should.not.equal(!data.hasResultSet || data.rows.length > 1);
-
       setImmediate(() => {
+        expect(data.hasResultSet).to.exist;
+        expect(data.rows.length).to.be.a('number');
+
         done();
       });
     }).catch((err) => {
@@ -158,7 +170,9 @@ describe('ThriftDriverTest', () => {
       debug(`message:  ${err.message}`);
       debug(`stack:  ${err.stack}`);
 
-      err.should.not.exist();
+      setImmediate(() => {
+        expect(err).to.not.exist;
+      });
     });
   });
 });

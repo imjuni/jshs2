@@ -12,7 +12,7 @@ JSHS2 0.4.0 refactoring to Node.js 7.x. JSHS2 develop using by [ES2015](https://
 If you use under Node.js 7.x, use JSHS2 0.3.1. 
 
 
-# I need help!
+## I need help!
 And I need your help. jsHS2 is not implementation SASL. I hope that someone add SASL on this project.
 Contact imjuni@gmail.com with questions
 

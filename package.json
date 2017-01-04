@@ -16,7 +16,9 @@
     "url": "http://imjuni.tistory.com"
   },
   "scripts": {
-    "lint": "./node_modules/.bin/eslint lib/**; exit 0"
+    "lint": "./node_modules/.bin/eslint lib/**; exit 0",
+    "test": "./node_modules/.bin/mocha -t 15000 test/**",
+    "test:msg": "DEBUG=jshs2:* ./node_modules/.bin/mocha -t 15000 test/**"
   },
   "repository": {
     "type": "git",
@@ -32,7 +34,6 @@
     "lodash": "^3.10.1",
     "moment": "^2.17.1",
     "node-int64": "^0.3.3",
-    "promise": "^7.0.1",
     "thrift": "^0.9.3"
   },
   "devDependencies": {
