@@ -90,3 +90,7 @@ i64ToString false, 7614985126350998549 -> Infinity
 * Refactoring code for Node.js 7.x
 * Fix-testcase
 * Apply eslint
+
+# 0.4.1
+* Fix bug from getSchema
+    * getSchema function return type field always undefined. fix it.
