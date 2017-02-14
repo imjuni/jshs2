@@ -151,6 +151,7 @@ describe('ThriftDriverTest', () => {
         fetchResult = yield cursor.fetchBlock();
 
         debug('rows ->', fetchResult.rows.length);
+        debug('rows ->', fetchResult.rows[0]);
         debug('rows ->', fetchResult.hasMoreRows);
       }
 

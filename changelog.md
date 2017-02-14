@@ -10,8 +10,8 @@ ChangeLog jsHS2
 * Add new feature, Configure and IdlContainer
     * merge connection & cursor configuration
     * IdlContainer is dynamic load IDL
-    
-    
+
+
 # 0.2.1
 * Change Configure -> Configuration
     * use noun
@@ -20,7 +20,7 @@ ChangeLog jsHS2
 * Change IdlContainer
     * implementation callback version
     * support promise version using by callback
-    * move to Configuration, because every Configurations have each IdlContainer. Each Configurations has 
+    * move to Configuration, because every Configurations have each IdlContainer. Each Configurations has
     differents IdlContainer for execute multi version executing
 * Change ConnectionTest
 
@@ -62,7 +62,7 @@ ChangeLog jsHS2
 # 0.2.12
 * Fix bug from CallbackTest and PromiseTest. If resultset hasn't rows after cause error. Because test always try getSchema and fetch.
 * Fix bug from CCursor. If error caused from close, return reject. But reject not defined function, fix it.
-* add Configuration option i64ToString. int64 convert i64val to float64. Int64 cannot convert float64, return Infinity. i64ToString is to true, convert string value of real value. 
+* add Configuration option i64ToString. int64 convert i64val to float64. Int64 cannot convert float64, return Infinity. i64ToString is to true, convert string value of real value.
     * If you not set i64ToString that is to set true. You don't wanna this feature that flag set false.
     * update cluster.json
     * update testcase
@@ -70,7 +70,7 @@ ChangeLog jsHS2
 ```
 # example
 
-i64ToString true, 7614985126350998549 -> '7614985126350998549' 
+i64ToString true, 7614985126350998549 -> '7614985126350998549'
 i64ToString false, 7614985126350998549 -> Infinity
 ```
 
@@ -94,3 +94,7 @@ i64ToString false, 7614985126350998549 -> Infinity
 # 0.4.1
 * Fix bug from getSchema
     * getSchema function return type field always undefined. fix it.
+
+# 0.4.2
+* Fix bug from this object
+* Add IDL thrift 0.9.3 & Hive 2.1.1
