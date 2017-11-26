@@ -2,18 +2,35 @@ JSHS2
 ----
 
 # Introduction
-jsHS2 is a node.js client driver for hive server 2. See test/PromiseTest.js, for an example of how to use it. jsHS2 reference from pyhs2 after rewrite javascript. But some feature modify suitable for javascript(ex> Promise support). 
+JSHS2 is a node.js client driver for hive server 2. See test/PromiseTest.js, for an example of how to use it. JSHS2 reference from pyhs2 after rewrite javascript. But some feature modify suitable for javascript(ex> Promise support).
 
-jsHS2 include IDL(Interface Description Language). For example, Thrift_0.9.2_Hive_1.1.0 in idl directory.
+JSHS2 include IDL(Interface Description Language). For example, Thrift_0.9.2_Hive_1.1.0 in idl directory.
+
+# Important
+If you want to use JSHS2, You must change hive server 2 configuration. See [Hive Security Configuration](https://cwiki.apache.org/confluence/display/Hive/Setting+Up+HiveServer2#SettingUpHiveServer2-Authentication/SecurityConfiguration), after change `hive.server2.authentication` value to NOSASL. If you meet connection timeout or querying timeout, most case you don't set NOSASL mode. Because hive server 2 default option is SASL mode.
+
+```
+<!-- in conf/hive-site.xml, change configuration restart hive server -->
+
+<configuration>
+  <property>
+    <name>hive.exec.authentication</name>
+    <value>NOSASL</value>
+  </property>
+</configuration>
+```
+
+# What is differenc node-java with Hive JDBC between jshs2?
+JDBC connect hive via node-java (using C++ JNI interface). JDBC don't need to set NOSASL, and fully support Apache communify. But JDBC query connection, execution that is some slow because node-jav JNI interface not fast furthermore JDBC need so much loop. If you need execute heavy query that don't suitable for your need.
 
 # Breaking Change
 JSHS2 0.4.0 refactoring to Node.js 7.x. JSHS2 develop using by [ES2015](https://github.com/lukehoban/es6features#readme) feature. For example Class, Destructuring, etc...
 
-If you use under Node.js 7.x, use JSHS2 0.3.1. 
+If you use under Node.js 7.x, use JSHS2 0.3.1.
 
 
 # I need help!
-And I need your help. jsHS2 is not implementation SASL. I hope that someone add SASL on this project.
+And I need your help. JSHS2 is not implementation SASL. I hope that someone add SASL on this project.
 Contact imjuni@gmail.com with questions
 
 # Install
@@ -35,10 +52,10 @@ const options = {
   hiveType: HS2Util.HIVE_TYPE.HIVE,  // HiveServer2 type, (Hive or CDH Hive)
   hiveVer: '1.1.0',                  // HiveServer2 Version
   thriftVer: '0.9.2',                // Thrift version at IDL Compile time
-  
-  // maybe if you need chdVer below after line 
+
+  // maybe if you need chdVer below after line
   cdhVer: '5.3.0',
-  
+
   // Cursor configuration
   maxRows: 5120,
   nullStr: 'NULL',
@@ -67,7 +84,7 @@ Configure new class. It contain connection configuration and cursor configuratio
 * cdhVer - if you using CDH, describe version parameter
 * maxRows - fetch size
 * nullStr - Maybe column value is NULL, replace nullStr. Default value is 'NULL'.
-* i64ToString - javascript number type present floating number. So, i64 interger value cannot display using number. If you enable this flag, 
+* i64ToString - javascript number type present floating number. So, i64 interger value cannot display using number. If you enable this flag,
 
 # Hive in CDH
 getLog function is difference between vanilla Hive and Hive in CDH(CDH Hive).
@@ -86,7 +103,7 @@ environment). See under idl directory that was created using by simple rule.
 * Use Vanilla Hive
     * /idl/Thrift\__[Thrift version]_\_Hive\__[Hive version]_
 
-## jsHS2 include & Test 
+## jsHS2 include & Test
 * Thrift_0.9.2_Hive_0.13.1_CDH_5.3.0
 * Thrift_0.9.2_Hive_1.0.0
 * Thrift_0.9.2_Hive_1.1.0
@@ -107,7 +124,7 @@ jshs2 idl directory, And You specify version. That is it!
 # Test
 ```bash
 # Create cluster.json file, after modify value by your environment
-$ cp cluster.json.sample cluster.json 
+$ cp cluster.json.sample cluster.json
 
 $ npm run test     # without debug message
 $ npm run test:msg # with debug message
