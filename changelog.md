@@ -98,3 +98,10 @@ i64ToString false, 7614985126350998549 -> Infinity
 # 0.4.2
 * Fix bug from this object
 * Add IDL thrift 0.9.3 & Hive 2.1.1
+
+# 0.4.3
+* Add detail description on README.md
+
+# 0.4.4
+* fix directory name error-typing
+  * lib/Common -> lib/common
